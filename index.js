@@ -1,5 +1,5 @@
 import { WorkflowTemplateHelper } from "./workflow-template-helper.js";
-import fs from "fs";
+import fs from "fs/promises";
 
 // NOTE: needed only for rationale DEV environment
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -21,19 +21,44 @@ async function main() {
   const qaWorkflowTemplates = await qaHelper.getAllWorkflowTemplates();
   const qaDict = createDictionary(qaWorkflowTemplates);
 
+  const result = {
+    prodTemplateIds: Object.keys(prodDict),
+    updatedTemplates: [],
+    createdTemplates: [],
+    templateErrors: [],
+    isTemplateMatcherUpdated: false,
+    templateMatchersUpdateError: null,
+  };
+
+  for (const templateId in prodDict) {
+    try {
+      const qaId = qaDict[templateId]?.id;
+      const yaml = await prodHelper.getYaml(prodDict[templateId].id);
+
+      if (qaId) {
+        await qaHelper.updateTemplate(qaId, yaml);
+        result.updatedTemplates.push(templateId);
+      } else {
+        await qaHelper.createTemplate(templateId, yaml);
+        result.createdTemplates.push(templateId);
+      }
+    } catch (error) {
+      result.createdTemplates.push({ templateId, error });
+    }
+  }
+
   const prodTemplateMatchers = await prodHelper.getTemplateMatchers();
   console.log(prodTemplateMatchers);
 
-  for (const templateId in prodDict) {
-    const qaId = qaDict[templateId]?.id;
-    const yaml = await prodHelper.getYaml(prodDict[templateId].id);
-
-    if (qaId) {
-      qaHelper.updateTemplate(qaId, yaml);
-    } else {
-      qaHelper.createTemplate(templateId, yaml);
-    }
+  try {
+    await qaHelper.updateTemplateMatchers(prodTemplateMatchers);
+    result.isTemplateMatcherUpdated = true;
+  } catch (e) {
+    result.isTemplateMatcherUpdated = false;
+    result.templateMatchersUpdateError = e;
   }
+
+  await fs.writeFile("result.json", JSON.stringify(result));
 }
 
 function createDictionary(workflowTemplates) {

@@ -40,6 +40,10 @@ export class WorkflowTemplateHelper {
     // console.log({ templateId, yaml });
   }
 
+  async updateTemplateMatchers(yaml) {
+    console.log("Updated template matcherd");
+  }
+
   async getYaml(id) {
     const response = await fetch(
       `${this.host}/workflow-templates/yaml-template/${id}`,
