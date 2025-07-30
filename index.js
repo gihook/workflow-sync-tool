@@ -1,4 +1,5 @@
 import fetch from "node-fetch";
+import { WorkflowTemplateHelper } from "./workflow-template-helper.js";
 
 // NOTE: needed only for rationale DEV environment
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -10,7 +11,9 @@ const prodCookie =
 const qaHost = "http://localhost:5000";
 
 async function main() {
-  const prodWorkflowTemplates = await getAllWorkflowTemplates(prodHost);
+  const prodHelper = new WorkflowTemplateHelper(prodHost, prodCookie);
+
+  const prodWorkflowTemplates = await prodHelper.getAllWorkflowTemplates();
 
   const yamlFiles = {};
 
@@ -22,46 +25,6 @@ async function main() {
     console.log(yaml);
     console.log("=====");
   }
-}
-
-async function getAllWorkflowTemplates(host) {
-  const response = await fetch(
-    `${host}/api/workflow-templates/search-workflow-templates?pageNumber=1&numberOfResults=1000`,
-    {
-      headers: {
-        accept: "application/json, text/plain, */*",
-        "content-type": "application/json",
-        "x-xsrf-token":
-          "CfDJ8KGSw3UYzgdGlg69OHy5hX0T1OBsYDxIa1txELlXZC_AtZYfaMkJxr32Aw0zDwMpvVCyI8Lmo4ehobaoATcEn4ioRPJ87twMSW97YtcaQOgxD0FRseNoWkleneqoCMbAb85LlWuM-UOYF6gk1BsFV88RqvboYUVECrPVzlKB5RZ65fbM_jzrQ4arjRa7_vIonA",
-        cookie: prodCookie,
-      },
-      body: "{}",
-      method: "POST",
-    },
-  );
-
-  const json = await response.json();
-
-  return json.items.map((x) => ({ id: x.id, templateId: x.id, name: x.name }));
-}
-
-async function getYaml(host, id) {
-  const response = await fetch(
-    `${host}/workflow-templates/yaml-template/${id}`,
-    {
-      headers: {
-        accept: "application/json, text/plain, */*",
-        "content-type": "text/plain; charset=utf-8",
-        cookie: prodCookie,
-      },
-      body: null,
-      method: "GET",
-    },
-  );
-
-  const yaml = response.text();
-
-  return yaml;
 }
 
 main().then(() => {
