@@ -13,8 +13,6 @@ export class WorkflowTemplateHelper {
         headers: {
           accept: "application/json, text/plain, */*",
           "content-type": "application/json",
-          "x-xsrf-token":
-            "CfDJ8KGSw3UYzgdGlg69OHy5hX0T1OBsYDxIa1txELlXZC_AtZYfaMkJxr32Aw0zDwMpvVCyI8Lmo4ehobaoATcEn4ioRPJ87twMSW97YtcaQOgxD0FRseNoWkleneqoCMbAb85LlWuM-UOYF6gk1BsFV88RqvboYUVECrPVzlKB5RZ65fbM_jzrQ4arjRa7_vIonA",
           cookie: this.cookie,
         },
         body: "{}",
@@ -32,16 +30,61 @@ export class WorkflowTemplateHelper {
   }
 
   async updateTemplate(id, yaml) {
-    // console.log({ id, yaml });
+    const response = await fetch(
+      `${this.host}/api/workflow-templates/${id}/store-yaml-template`,
+      {
+        headers: {
+          accept: "application/json, text/plain, */*",
+          "content-type": "text/plain",
+          cookie: this.cookie,
+        },
+        body: yaml,
+        method: "POST",
+      },
+    );
+
+    const success = response.status == 200;
+
+    if (!success) throw new Error("Unable to update template " + id);
   }
 
   async createTemplate(templateId, yaml) {
-    console.log("Created new template " + templateId);
-    // console.log({ templateId, yaml });
+    await fetch(
+      `${this.host}/api/workflow-templates/create-workflow-template-yaml`,
+      {
+        headers: {
+          accept: "application/json, text/plain, */*",
+          "accept-language": "en-US,en;q=0.9",
+          "content-type": "text/plain",
+          cookie: this.cookie,
+        },
+        body: yaml,
+        method: "POST",
+      },
+    );
+
+    const success = response.status == 200;
+
+    if (!success) throw new Error("Unable to create template " + templateId);
   }
 
   async updateTemplateMatchers(yaml) {
-    console.log("Updated template matcherd");
+    const response = await fetch(
+      `${this.host}/api/workflow-templates/set-yaml-selector-configuration`,
+      {
+        headers: {
+          accept: "application/json, text/plain, */*",
+          "content-type": "text/plain",
+          cookie: this.cookie,
+        },
+        body: yaml,
+        method: "POST",
+      },
+    );
+
+    const success = response.status == 200;
+
+    if (!success) throw new Error("Unable to update template matchers");
   }
 
   async getYaml(id) {
