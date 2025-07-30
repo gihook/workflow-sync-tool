@@ -21,6 +21,9 @@ async function main() {
   const qaWorkflowTemplates = await qaHelper.getAllWorkflowTemplates();
   const qaDict = createDictionary(qaWorkflowTemplates);
 
+  const prodTemplateMatchers = await prodHelper.getTemplateMatchers();
+  console.log(prodTemplateMatchers);
+
   for (const templateId in prodDict) {
     const qaId = qaDict[templateId]?.id;
     const yaml = await prodHelper.getYaml(prodDict[templateId].id);

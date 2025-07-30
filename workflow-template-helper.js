@@ -57,4 +57,23 @@ export class WorkflowTemplateHelper {
 
     return yaml;
   }
+
+  async getTemplateMatchers() {
+    const response = await fetch(
+      `${this.host}/workflow-templates/template-matchers-yaml`,
+      {
+        headers: {
+          accept: "application/json, text/plain, */*",
+          "content-type": "text/plain; charset=utf-8",
+          cookie: this.cookie,
+        },
+        body: null,
+        method: "GET",
+      },
+    );
+
+    const yaml = response.text();
+
+    return yaml;
+  }
 }
