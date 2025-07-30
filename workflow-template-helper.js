@@ -26,9 +26,18 @@ export class WorkflowTemplateHelper {
 
     return json.items.map((x) => ({
       id: x.id,
-      templateId: x.id,
+      templateId: x.templateId,
       name: x.name,
     }));
+  }
+
+  async updateTemplate(id, yaml) {
+    // console.log({ id, yaml });
+  }
+
+  async createTemplate(templateId, yaml) {
+    console.log("Created new template " + templateId);
+    // console.log({ templateId, yaml });
   }
 
   async getYaml(id) {
@@ -40,7 +49,6 @@ export class WorkflowTemplateHelper {
           "content-type": "text/plain; charset=utf-8",
           cookie: this.cookie,
         },
-        body: null,
         method: "GET",
       },
     );
